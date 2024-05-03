@@ -14,21 +14,21 @@ public class FcmPushSender
     private const string EnvFcmKeyName = "FCM_KEY_JSON";
     private GoogleCredential _credential;
 
-    public async Task<Response> SendPush(WebPushRequest? request)
+    public async Task<Result> SendPush(WebPushRequest? request)
     {
         if (request is null)
-            return new Response { StatusCode = 400, Message = $"Invalid {nameof(WebPushRequest)}" };
+            return new Result { StatusCode = 400, Message = $"Invalid {nameof(WebPushRequest)}" };
         
         var ruleValidator = new RuleValidator();
 
         var fcmConfig = GetConfigJsonFromEnv();
         var (isConfigValid, configMessage) = ruleValidator.IsConfigValid(fcmConfig);
         if (!isConfigValid)
-            return new Response { StatusCode = 500, Message = configMessage };
+            return new Result { StatusCode = 500, Message = configMessage };
 
         var (isRequestValid, requestMessage) = ruleValidator.IsRequestValid(request);
         if (!isRequestValid)
-            return new Response { StatusCode = 400, Message = requestMessage };
+            return new Result { StatusCode = 400, Message = requestMessage };
 
         _credential = GoogleCredential.FromJson(fcmConfig);
 
@@ -39,10 +39,10 @@ public class FcmPushSender
         }
         catch (Exception e)
         {
-            return new Response { Message = e.Message, StatusCode = 500 };
+            return new Result { Message = e.Message, StatusCode = 500 };
         }
 
-        return new Response { StatusCode = 200 };
+        return new Result { StatusCode = 200 };
     }
 
     private string GetConfigJsonFromEnv()
